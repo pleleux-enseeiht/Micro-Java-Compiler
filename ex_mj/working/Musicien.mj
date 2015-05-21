@@ -1,0 +1,43 @@
+class Musicien {
+	
+	int instruments;
+
+	Musicien (int i) {
+		instruments = i;
+	}
+
+	int getInstruments() {
+		return instruments;
+	}
+
+	void redefinition() {
+		instruments = 42;
+	}
+}
+
+class Fanfaron extends Musicien {
+
+	boolean isSouba;
+
+	Fanfaron (boolean iS) {
+		instruments = 3;
+		isSouba = iS;
+	}
+
+	boolean getIsSouba() {
+		return isSouba;
+	}
+
+	void redefinition() {
+		instruments = 0;
+	}
+}
+
+class Concerto {
+	void main() {
+		Musicien m = new Fanfaron(true);
+		int x = m.getInstruments();
+		boolean c = m.getIsSouba();
+		m.redefinition();
+	}	
+}

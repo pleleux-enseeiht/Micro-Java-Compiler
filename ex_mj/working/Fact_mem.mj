@@ -1,0 +1,28 @@
+class Fact {
+  int res;
+
+  int fact(int n) {
+    if(n <1) { 
+      return 1; 
+    }
+    else {
+      return n * fact(n-1);
+    }
+  }
+}
+
+class res {
+	int i;
+
+	void setI (int t) {
+		i = t;
+	}
+}
+
+class TestFact {
+  void main() {
+    Fact f = new Fact();
+    res x = new res();
+    x.setI(f.fact(3));
+  }
+}

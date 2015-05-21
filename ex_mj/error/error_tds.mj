@@ -1,0 +1,73 @@
+class error_tds {
+
+	//error : classe non definie	
+	non_existant_class nec;
+
+	int already_defined_attribute;
+	//error : attribut deja defini
+	boolean already_defined_attribute;
+
+	//error : Un constructeur ne doit rien retourner (classe test)
+	error_tds() {
+		return 0;
+	}
+
+	//error : Un constructeur de la classe test porte un nom different : constructor
+	constructor() {
+
+	}
+
+	//error : classe et methode test ne peuvent avoir le meme nom
+	void test() {
+	}
+
+	//error : parametre already_defined_param de la methode test2 deja defini
+	void test2(int already_defined_param, boolean already_defined_param) {
+	}
+	
+	//error : methode test2 deja definie
+	void test2() {
+	}
+
+	//retour de la methode test3 absent
+	int test3(int y) {
+		//error : la variable y a le meme nom qu'un parametre dans la classe test
+		int y;
+	}
+
+	void main() {
+		int y;
+		//error : variable y de la classe test deja definie
+		boolean y;
+		
+		//error : Identificateur whatsdat non defini dans la classe test
+		whatsdat = 3;
+
+		//error : Tentative d'acces a un attribut d'un objet basique (entier) dans la classe test
+		y.attribut = 2;
+
+		dede d = new dede();
+
+		//error : La methode undefined_method () n'est pas definie pour la classe dede
+		d.undefined_method();
+
+		//error : L'attribut undefined_attribute n'est pas defini pas dans la classe test
+		d.undefined_attribute = 2;
+
+		//error : La methode main ne doit rien retourner
+		return y;
+	}
+}
+
+class dede {
+
+	//error : Il y a plus d'une classe main dans le fichier
+	void main() {
+		//error : le constructeur test(entier(1)) n'est pas défini
+		//error_tds e = new error_tds(int n);
+	}
+}
+
+//error : classe deja definie
+class error_tds {
+}

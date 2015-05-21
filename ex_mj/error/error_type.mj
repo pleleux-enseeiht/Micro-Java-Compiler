@@ -1,0 +1,19 @@
+class error_type {
+
+	int main() {
+		//error : Erreur de type : booleen trouve au lieu de entier dans la methode main.
+		int x = true;
+
+		//error : Erreur de type sur retour de methode : booleen au lieu de entier dans la methode main
+		return false;
+
+		//error : Le ou les objets autour de l'operande n'ont pas le bon type
+		int y = true + true;
+
+		//error : L'operateur est compatible avec les types entier et non les types booleen
+		int y = true + true;
+
+		//error : Les deux membres d'un opérande n'ont pas le meme type : entier et booleen
+		int z = 2 / true;
+	}
+}

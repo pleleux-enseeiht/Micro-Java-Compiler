@@ -1,0 +1,47 @@
+filou@Hal-Bender:~/Bureau/tdl/src$ ./mjcompiler ../ex_mj/working/Musicien.mj 
+version 0.0.1
+Compiling ../ex_mj/working/Musicien
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+c : Variable de type : booleen(1) et de dep : 5
+m : Variable de type : pointeur(1) vers type = Fanfaron et de dep : 3
+x : Variable de type : entier(1) et de dep : 4
+
+Ecriture du code dans ../ex_mj/working/Musicien.tam
+
+Table des classes
+Classe Fanfaron
+	Attributs :
+entier(1) instruments, booleen(1) isSouba
+	Methodes :
+Methode entier getInstruments () deplacement : 0
+Methode void redefinition () deplacement : 1
+Constructeur Fanfaron (
+booleen(1) iS) deplacement : 2
+Methode booleen getIsSouba () deplacement : 3
+	Deplacement : 2
+
+Classe Concerto
+	Attributs :
+	Methodes :
+Methode void main () deplacement : 0
+	Deplacement : 5
+
+Classe Musicien
+	Attributs :
+entier(1) instruments
+	Methodes :
+Constructeur Musicien (
+entier(1) i) deplacement : 0
+Methode entier getInstruments () deplacement : 1
+Methode void redefinition () deplacement : 2
+	Deplacement : 0
+
+
+Table des Symboles :
+Ok.

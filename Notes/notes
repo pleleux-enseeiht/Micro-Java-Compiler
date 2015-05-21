@@ -1,0 +1,44 @@
+.
+MJAVA.ecf => change les fichiers à compiler, rajouter les fichiers sur la tds et les types ?
+
+./properties
+MJAVAMessages.properties => ajouter tous les messages d'erreur possibles
+			 => lister les erreurs possibles !!
+
+./dossier gc
+	=> mais qu'est-ce que ceci ???
+	=> est-ce que SPARC, TAM et X86 sont des langages assembleur différents ?
+	=> on doit tous les faire ? Oui
+	=> Comment diable est-ce qu'ils ont su qu'est-ce qu'il fallais mettre dedans ?
+	=> VOIR DERNIER TP SI CA EXISTAIT DEJA : Ben ça existait pas
+
+./egg
+	=> dossier vide, voir dernier TP
+
+./compiler
+	=> A quoi ça correspond ? (je soupçonne des dossiers obligatoire pour la compilation -en même temps "compiler" c'est pas pour faire des crêpes - mais ça peut être intéressant de savoir réellement ce que sont ces fichiers. D'un autre côté ce sera si on a le temps, non parce que pour l'instant l'important c'est de faire la génération de code)
+
+./tds - ./type
+	=> a remplir avec tous les fichiers de la famille
+
+Choses a faire :
+1) Faire le Schéma des "entités"
+	=> A quoi correspond une classe ?
+	=> Comment on va gérer l'héritage (pointeur vers type classe mère ou ajout des attributs et méthodes supplémentaires + remplacement des méthodes surchargées)
+	=> 2 tables, TDS et TDC ??
+	=> Qu'est-ce que la TDV ??
+
+2) Gestion des tables dans le fichiers egg
+	Méthodologie :  => Chercher les R.P. référençant des noms (ident)
+			=> Déterminer les infos à associer à ces différents noms (théoriquement fait en 1)
+			=> Attributs sémantiques et actions sémantiques créant/mettant à jour ces infos
+			=> Ajouter les actions sémantiques de "transmission"
+
+3) Gestion des types dans le fichier egg
+	Méthodologie :  => Faire la liste de tous les types basiques et structurels (théoriquement fait en 1)
+			=> définir les règles de contrôle des types et de construction
+			=> Ecrire une G.A associée (un attribut type pour chaque expression)
+
+
+Introspection into the depth of MJAVA.egg :
+

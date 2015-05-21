@@ -1,0 +1,17 @@
+class Fact {
+  int fact(int n) {
+    if(n <1) { 
+      return 1; 
+      }
+    else {
+      return n * fact(n-1);
+      }
+    }
+}
+
+class TestFact {
+  void main() {
+    Fact f = new Fact();
+    int x = f.fact(6);
+  }
+}

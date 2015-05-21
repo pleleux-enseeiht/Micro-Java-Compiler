@@ -1,0 +1,2369 @@
+----------------------------------------------------------------------------------------
+--               Projet Semantique et Traduction des Langages 2012-2013               --
+--                               micro java : grammaire                               --
+----------------------------------------------------------------------------------------
+
+
+
+-----------------------------------------------------------
+--                     Les Options                       --
+-----------------------------------------------------------
+option auto= true;		--heritage d'attribut automatique
+option version = 0.0.0 ;	--version du fichier (obsolete)
+option k=3;
+
+
+
+-----------------------------------------------------------
+--              Les Attributs Semantiques                --
+-----------------------------------------------------------
+
+----------------------------
+--         Source         --
+----------------------------
+inh source : MJAVASourceFile for PROGRAMME;
+
+
+----------------------------
+--    Table Des Classes   --
+----------------------------
+syn stdc		: TDC for PROGRAMME;	--table des classes definie
+inh tdc			: TDC for CLASSES, DEFCLASSE, SUPER, CORPS, DEFS, F, FX, FACTEUR, TX, TERME, ES, ESX, ERX, ER, AFFX, E, INST, INSTS, BLOC, DEF, SIX, ARGS, ARGSX, TYPE, PARF, PARFS, PARFSX, OPREL, OPADD;		--transmission de la table des classes
+
+
+----------------------------
+--         Classe         --
+----------------------------
+syn parent_classe	: INFOCLASSE for SUPER;		--transmet la classe parente
+syn sclasse		: INFOCLASSE for DEFCLASSE;	--classe definie
+inh classe		: INFOCLASSE for CORPS, DEFS, F, FX, FACTEUR, TX, TERME, ES, ESX, ERX, ER, AFFX, E, INST, INSTS, BLOC, DEF, SIX, ARGS, ARGSX, TYPE, PARF, PARFS, PARFSX, OPREL, OPADD ;						--transmission de la classe definie
+inh hclasse   		: INFOCLASSE for FX;		--acces a un attribut ou une methode
+
+
+----------------------------
+--        Methode         --
+----------------------------
+syn smethod		: INFOMETHOD for DEF;		--methode definie
+inh method		: INFOMETHOD for F, FX, FACTEUR, TX, TERME, ES, ESX, ERX, ER, AFFX, E, INST, INSTS, BLOC, SIX, ARGS, ARGSX, TYPE, PARF, PARFS, PARFSX, OPREL, OPADD;
+							--transmission de la methode
+
+----------------------------
+--       Parametres       --
+----------------------------
+inh params		: LATTRIBUTES for PARFS,PARF,PARFSX, BLOC, INSTS, INST, SIX, AFFX, E, ER, ERX, ES, ESX, TERME, TX, FACTEUR, F, FX, ARGS, ARGSX;	--parametres declares
+syn params_new		: LATTRIBUTES for ARGS, ARGSX ;		--parametres lors d'un appel
+
+
+----------------------------
+--   Table Des Symboles   --
+----------------------------
+syn stds		: TDS for PROGRAMME;		--Table des Symboles definie
+inh tds			: TDS for CLASSES, DEFCLASSE, SUPER, CORPS, DEFS, F, FX, FACTEUR, TX, TERME, ES, ESX, ERX, ER, AFFX, E, INST, INSTS, BLOC, DEF, SIX, ARGS, ARGSX, TYPE, PARF, PARFS, PARFSX, OPREL, OPADD;			--transmission de TDS
+
+
+----------------------------
+--          Type          --
+----------------------------
+syn type      		: DTYPE for TYPE, E, ER, FACTEUR, F, FX, TERME, OPUN, OPMUL, OPADD, OPREL, ERX, ESX, ES, TX;			--type d'une expression
+syn op_type		: DTYPE for OPREL;	--type d'un operateur
+syn hasReturn 		: INTEGER for BLOC,INST,INSTS,SIX;	--nombre d'instructions de retour
+inh returnType    	: DTYPE     for AFFX, TX, ERX, ESX, FX, BLOC, SIX, INSTS, INST;
+						--type de retour
+inh prec_ident       	: STRING for FX;	--identifiant precedent lors d'acces a un attribut ou un appel de methode
+
+
+----------------------------
+--       Deplacement      --
+----------------------------
+inh dep     		: INTEGER   for CORPS, DEFS, DEF, BLOC, INSTS, INST, SIX;
+						                  --deplacement des elements
+syn sdep   		: INTEGER   for BLOC, INSTS, INST, DEF;	  --deplacement definie
+inh attr_dep      	: INTEGER   for ARGS, PARFSX, PARF, ARGSX;--deplacement du parametre
+
+
+----------------------------
+--  Tables Des Virtuelles --
+----------------------------
+inh tdv      		: INTEGER   for DEFCLASSE, CLASSES;	--adresse de la TDV
+syn stdv    		: INTEGER   for DEFCLASSE;		--TDV definie
+
+
+----------------------------
+--         Machine        --
+----------------------------
+--Machine contenant les methodes a appeler pour la generation de code
+syn smachine		: AbstractMachine for PROGRAMME;	--machine definie
+inh machine 		: AbstractMachine for CLASSES, DEFCLASSE, CORPS, DEFS, DEF, BLOC, INSTS, INST, SIX, AFFX, E, ER, ERX, ES, ESX, TERME, TX, OPREL, OPUN, OPADD, OPMUL, F, FACTEUR, FX, ARGS ,ARGSX;					--transmission de la machine
+
+
+----------------------------
+--          Code          --
+----------------------------
+syn est_valeur 		: BOOLEAN   for FACTEUR, F, ER, ES, TERME, FX, E;
+				-- Indique si une expression est une valeur/adresse
+syn code    		: STRING for CLASSES, DEFCLASSE, CORPS, DEFS, DEF, BLOC, INSTS, INST, SIX, AFFX, E, ER, ERX, ES, ESX, TERME, TX, OPREL, OPUN, OPADD, OPMUL, FACTEUR, F, FX, ARGS ,ARGSX;				--generation et transmission de code
+inh hcode   		: STRING for FX;	--idem pour l'acces a un attribut ou un appel de methode
+
+
+
+-----------------------------------------------------------
+--                    Les Terminaux                      --
+-----------------------------------------------------------
+space separateur is  "[\r\n\t ]+";     
+space comm is  "\/\/[^\n]*\n";
+sugar paro is  "\(";
+sugar parf is  "\)";
+sugar aco is  "\{";     
+sugar acf is  "\}"; 
+sugar cro is  "\["; 
+sugar crf is  "\]";
+sugar virg is  ",";
+sugar pv is  "\;";
+sugar pt is  "\.";
+sugar affect is  "=";
+sugar si is  "if";
+sugar sinon is  "else";
+sugar tantque is "while";
+sugar void is  "void";
+sugar int is  "int";
+sugar bool is  "boolean";
+sugar classe is  "class";
+sugar extend is  "extends";
+sugar retour is  "return";
+sugar this is  "this";
+sugar super is  "super";
+sugar nouveau is  "new";
+sugar null is  "null";
+sugar inf is  "\<";
+sugar infeg is  "\<=";
+sugar sup is  "\>";
+sugar supeg is  "\>=";
+sugar eg is  "==";
+sugar neg is  "\!=";
+sugar plus is  "\+";
+sugar moins is  "\-";
+sugar ou is  "\|\|";
+sugar mult is  "\*";
+sugar div is  "\/";
+sugar mod is  "\%" ; 
+sugar et is  "\&\&";
+sugar non is  "\!";
+sugar vrai is  "true";
+sugar faux is  "false";
+term entier is  "[0-9]+";
+term ident is  "[_A-Za-z][_0-9A-Za-z]*";
+
+
+
+-----------------------------------------------------------
+--                Les Règles De Production               --
+-----------------------------------------------------------
+
+---------------------------------------------------------------
+--PROGRAMME -> CLASSES ;                                     --
+--	#init : creation de la machine grace a la source     --
+--	#tdc : creation de la tdc                            --
+--	#tds : creation de la tds principale                 --
+--	#tdv : initialisation de la tdv                      --
+--	#gc : ecriture du code genere dans le fichier cible  --
+---------------------------------------------------------------
+PROGRAMME -> #init #tdc #tds #tdv CLASSES #gc;
+global
+   machine : AbstractMachine; --machine definie
+   tdc : TDC;		      --tdc definie
+   tds : TDS;		      --tds definie
+#init {
+local
+do
+   machine := PROGRAMME^source.getMachine();
+   PROGRAMME^smachine := machine;
+   CLASSES^machine := machine;
+end
+}
+#tdc {
+local
+do
+   tdc := new TDC();
+   CLASSES^tdc := tdc;
+   PROGRAMME^stdc := tdc;
+end
+}
+#tds {
+local
+do
+   tds := new TDS();
+   CLASSES^tds := tds;
+   PROGRAMME^stds := tds;
+end
+}
+#tdv {
+local
+do
+   CLASSES^tdv := 0;
+end
+}
+#gc {
+local
+    main    : String;
+    tdv     : String;
+    npe     : String;
+    retour  : String;
+do
+  tdv := machine.genererTDV(tdc);
+  main := machine.genererAppelMain(tdc);
+  npe := machine.genererCodeNPE();
+  if (main = "Pas de main valide") then
+    error(M_main_not_found);
+  elseif (main = "Plusieurs definitions de main") then
+    error(Multiple_main);
+  else
+    write "\n";
+    call machine.writeCode(PROGRAMME^source.getFileName(), tdv + main + npe + CLASSES^code );
+  end
+
+	write "\n" + tdc;
+	write "\n" + tds;
+end
+}
+
+
+---------------------------------------------------------------
+--CLASSES ->;                                                --
+--	#gc : initialisation du code à vide                  --
+---------------------------------------------------------------
+--CLASSES -> DEFCLASSE CLASSES;                              --
+--	#tdv : transmission de la tdv modifiee par DEFCLASSE --
+--	#gc : concatenation des codes et transmission        --
+---------------------------------------------------------------
+CLASSES -> #gc ;
+#gc {
+do
+    CLASSES^code := "";
+end
+}
+
+CLASSES -> DEFCLASSE #tdv CLASSES #gc;
+#tdv {
+local
+do
+    CLASSES1^tdv := DEFCLASSE^stdv;
+end
+}
+#gc {
+do
+    CLASSES^code := DEFCLASSE^code + CLASSES1^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Definition d'une Classe                                   --
+---------------------------------------------------------------
+--DEFCLASSE -> classe ident SUPER CORPS;                     --
+--	#classe : initialisation de la classe                --
+--	#tdc : ajout de la classe dans la tdc                --
+--	#par : definition de la classe parente               --
+--	#dep : initialisation du deplacement de CORPS (+tdv) --
+--	#tdv : init tdv_corps avec tdv classe + nb methodes  --
+--	#gc : generation constructeur_defaut                 --
+--            concatenation et transmission du code          --
+---------------------------------------------------------------
+--SUPER ->;                                                  --
+--	#par : classe parente a transmettre null             --
+---------------------------------------------------------------
+--SUPER -> extend ident;                                     --
+--	#par : recuperation de la classe parente pour trans  --
+---------------------------------------------------------------
+--CORPS -> aco DEFS acf;                                     --
+--	#gc : transmission du code au CORPS                  --
+---------------------------------------------------------------
+DEFCLASSE -> classe ident #classe SUPER #tdc #par #dep CORPS #tdv #gc;
+global
+	c : INFOCLASSE;
+parent : INFOCLASSE;
+#classe {
+local
+do
+	c := new INFOCLASSE(ident^txt, DEFCLASSE^tdv);
+	DEFCLASSE^sclasse := c;
+end
+}
+#tdc {
+local
+    i : INFOCLASSE ;
+do
+    --on ajoute la classe ssi elle n'existe pas deja
+    i := DEFCLASSE^tdc.get(ident^txt);
+    if i /= nil then
+        error(M_already_defined_class, ident^txt);
+    else
+        CORPS^classe := c;
+        call DEFCLASSE^tdc.put(c);
+    end
+end
+}
+#par {
+do
+    parent := SUPER^parent_classe;
+    --on verifie que la classe parent existait bien
+    if (parent /= nil) then
+        call c.setParent(parent);
+    end
+end
+}
+#dep {
+local
+    la : LATTRIBUTES;
+do
+    if(parent = nil) then
+        -- On prend en compte l'adresse de la TDV, premier champ d'un objet
+        CORPS^dep := 1;
+    else
+        la := parent.getAttributes();
+        CORPS^dep := la.getDep() + 1;
+    end
+end
+}
+#tdv {
+do
+    DEFCLASSE^stdv := DEFCLASSE^tdv + c.countMethods();
+end
+}
+#gc {
+local
+    constructeur : STRING;
+do
+    constructeur := DEFCLASSE^machine.genConstructeurDefaut(c);
+    DEFCLASSE^code := constructeur + CORPS^code;
+end
+}
+
+SUPER -> #par;
+#par {
+local
+do
+	SUPER^parent_classe := nil;
+end
+}
+
+SUPER -> extend ident #par;
+#par {
+local
+    c : INFOCLASSE;
+do
+    --on passe la super classe ssi elle existe
+    c := SUPER^tdc.get(ident^txt);
+    if (c = nil) then
+        error(M_undefined_class, ident^txt);
+    else
+        SUPER^parent_classe := c;
+    end
+end
+}
+
+CORPS -> aco DEFS acf #gc;
+#gc {
+do
+	CORPS^code := DEFS^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Les Attributs                                             --
+---------------------------------------------------------------
+--DEFS ->;                                                   --
+--	#gc : initialisation du code a vide                  --
+---------------------------------------------------------------
+--DEFS ->  DEF DEFS;                                         --
+--	#dep : transmission de somme des dep des definitions --
+--	#gc : concat et trans des codes des definitions      --
+---------------------------------------------------------------
+DEFS -> #gc ;
+#gc {
+do
+    DEFS^code := "";
+end
+}
+
+DEFS ->  DEF #dep DEFS #gc;
+#dep {
+local
+do
+    DEFS1^dep := DEFS^dep + DEF^sdep;
+end
+}
+#gc {
+do
+    DEFS^code := DEF^code + DEFS1^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Attribut                                                  --
+---------------------------------------------------------------
+--DEF ->  TYPE ident pv;                                     --
+-- #par : initialisation des methodes a vide                 --
+-- #tds : on ajoute l'attribut a la liste de la methode      --
+-- #dep : definition sdep avec la taille du type en memoire  --
+-- #gc : initialisation du code a vide                       --
+---------------------------------------------------------------
+DEF ->  #par TYPE ident pv #tds #dep #gc;
+#par {
+local
+do
+	DEF^smethod := nil;
+	TYPE^method := nil;
+end
+}
+#tds {
+local
+    a : INFOATTRIBUTE;
+    la : LATTRIBUTES;
+do
+    la := DEF^classe.getAttributes();
+    a := la.search(ident^txt);
+    --on ajoute l'attribut ssi il ne fait pas deja partie de la liste d'attributs de la methode
+    if a /= nil then
+        error(M_already_defined_attr, ident^txt, DEF^classe.getName());
+    else
+        call la.add(new INFOATTRIBUTE(ident^txt, TYPE^type, DEF^dep));
+    end    
+end
+}
+#dep {
+local
+do
+    DEF^sdep := TYPE^type.getSize();	
+end
+}
+#gc {
+do
+    DEF^code := "";
+end
+}
+
+
+---------------------------------------------------------------
+-- Methode (Fonction)                                        --
+---------------------------------------------------------------
+--DEF ->  TYPE ident paro PARFS parf BLOC;                   --
+--	#method : initialisation methode avec rien pour type --
+--	#par : initialisation des noms et type de la method  --
+--et des parametres a vide pour la recuperation              --
+--	#tdc : ajout de la methode a la classe               --
+--	#tds : creation nouvelle tds pour le bloc            --   
+--	#dep : initialisation des deplacements               --
+--	#return : verificationde la presence du retour       --
+--	#gc : initialisation du code avec celui de la methode--
+---------------------------------------------------------------
+DEF ->  #method TYPE ident #par paro PARFS parf #tdc #tds #dep BLOC #return #gc ;
+global
+    la : LATTRIBUTES;
+    m : INFOMETHOD;
+    tds : TDS;
+#method {
+local
+do
+        la := new LATTRIBUTES();
+	m := new INFOMETHOD("", la, DEF^classe.getName(), nil);
+	TYPE^method := m;
+end
+}
+#par {
+do
+    -- On vérifie que la fonction ne porte pas le nom de la classe.
+	m := new INFOMETHOD(ident^txt, la, DEF^classe.getName(), TYPE^type);
+    if (ident^txt.equals(DEF^classe.getName())) then
+        error(M_class_method_same_name, m);
+    else
+	DEF^smethod := m;
+	PARFS^method := m;
+        PARFS^params := la;
+        BLOC^params := la;
+	BLOC^returnType := TYPE^type;
+    end
+end
+}
+#tdc {
+local
+    lm : LMETHODS ;
+    m_old : INFOMETHOD;
+    classe : String;
+do
+    classe := DEF^classe.getName();
+    m := new INFOMETHOD(ident^txt, la, classe, TYPE^type);
+    lm := DEF^classe.getMethods();
+    m_old := lm.search(m);
+    -- On regarde si la méthode n'a pas déja été redéfinie
+    if (m_old /= nil) then
+        -- La méthode était déja redéfinie (le nom de classe correspond a une classe parente)
+        if (classe.equals(m_old.getClasse())) then
+            error(M_already_defined_method, ident^txt, classe);
+        else
+            call lm.replace(m_old, m);
+        end
+    else
+        -- Insertion d'une méthode
+        call lm.add(m);
+    end
+    BLOC^method := m;
+end
+}
+#tds {
+do
+	tds := new TDS(DEF^tds);
+	BLOC^tds := tds;
+
+end
+}
+#dep {
+local
+do
+    BLOC^dep := 3; -- Enregistrement d'activation de taille 3
+    DEF^sdep := 0;
+end
+}
+#return{
+do 
+    if (BLOC^hasReturn = 0) then
+        error(M_missing_return,ident^txt);
+    end
+end
+}
+#gc {
+do
+    DEF^code := DEF^machine.genMethode(DEF^classe.getName(), m, BLOC^code);
+
+	write tds;
+end
+}
+
+
+---------------------------------------------------------------
+-- Methode (Procedure)                                       --
+---------------------------------------------------------------
+--DEF ->  void ident paro PARFS parf BLOC;                   --
+--	#par : initialisation des noms et type de la methode --
+--et des parametres a vide pour la recuperation              --
+--	#tdc : ajout de la methode a la classe               --
+--	#tds : creation nouvelle tds pour le bloc            --   
+--	#dep : initialisation des deplacements               --
+--	#return : verification de la non presence du retour  --
+--	#gc : initialisation du code avec celui de la methode--
+---------------------------------------------------------------
+DEF ->  void ident #par paro PARFS parf #tdc #tds #dep BLOC #return #gc;
+global
+    la : LATTRIBUTES;
+    m : INFOMETHOD;
+    tds : TDS;
+#par {
+do
+    -- On vérifie que la fonction ne porte pas le nom de la classe.
+    la := new LATTRIBUTES();
+    m := new INFOMETHOD(ident^txt, la, DEF^classe.getName(), new VIDE());
+    if (ident^txt.equals(DEF^classe.getName())) then
+        error(M_class_method_same_name, m);
+    else
+	DEF^smethod := m;
+	PARFS^method := m;
+        PARFS^params := la;
+        BLOC^params := la;
+	BLOC^returnType := new VIDE();
+    end
+end
+}
+#tdc {
+local
+    lm : LMETHODS ;
+    m_old : INFOMETHOD;
+    classe : String;
+do
+    classe := DEF^classe.getName();
+    m := new INFOMETHOD(ident^txt, la, classe, new VIDE());
+    lm := DEF^classe.getMethods();
+    m_old := lm.search(m);
+    -- On regarde si la méthode n'a pas déja été redéfinie
+    if (m_old /= nil) then
+        -- La méthode était déja redéfinie (le nom de classe correspond a une classe parente)
+        if (classe.equals(m_old.getClasse())) then
+            error(M_already_defined_method, ident^txt, classe);
+        else
+            call lm.replace(m_old, m);
+        end
+    else
+        -- Insertion d'une méthode
+        call lm.add(m);
+    end
+    BLOC^method := m;
+end
+}
+#tds {
+do
+	tds := new TDS(DEF^tds);
+	BLOC^tds := tds;
+end
+}
+#dep {
+do
+    BLOC^dep := 3; -- Enregistrement d'activation de taille 3
+    DEF^sdep := 0;
+end
+}
+#return{
+do 
+    if (BLOC^hasReturn /= 0) then
+        error(M_present_return,ident^txt);
+    end
+end
+}
+#gc {
+do
+    DEF^code := DEF^machine.genMethode(DEF^classe.getName(), m, BLOC^code);
+
+	write tds;
+end
+}
+
+
+---------------------------------------------------------------
+-- Constructeur                                              --
+---------------------------------------------------------------
+--DEF ->  ident paro PARFS parf BLOC;                        --
+--	#par : initialisation des noms et type du constructer--
+--et des parametres a vide pour la recuperation              --
+--	#tdc : ajout du constructeur a la classe             --
+--	#tds : creation nouvelle tds pour le bloc            --   
+--	#dep : initialisation des deplacements               --
+--	#return : verification de la non presence du retour  --
+--	#gc : initialisation du code avec le code constructer--
+---------------------------------------------------------------
+-- constructeur
+--DEF -> ident paro PARFS parf BLOC;
+DEF -> ident #par paro PARFS parf #tdc #tds #dep BLOC #return #gc;
+global
+    la : LATTRIBUTES;
+    m : INFOMETHOD;
+    tds : TDS;
+#par {
+do
+    -- Un constructeur DOIT avoir le même nom que la classe
+    if (~ident^txt.equals(DEF^classe.getName())) then
+        error(M_bad_constructor_name, ident^txt, DEF^classe.getName());
+    else
+        la := new LATTRIBUTES();
+	m := new INFOMETHOD(ident^txt, la, DEF^classe.getName(), new VIDE());
+	DEF^smethod := m;
+	PARFS^method := m;
+        PARFS^params := la;
+        BLOC^params := la;
+	BLOC^returnType := nil;
+    end
+end
+}
+#tdc {
+local
+    lm : LMETHODS ;
+    m_old : INFOMETHOD;
+    classe : String;
+do
+    classe := DEF^classe.getName();
+    m := new INFOMETHOD(ident^txt, la, classe, nil);
+    lm := DEF^classe.getMethods();
+    m_old := lm.search(m);
+    -- On regarde si la méthode n'a pas déja été redéfinie
+    if (m_old /= nil) then
+        -- La méthode était déja redéfinie (le nom de classe correspond a une classe parente)
+        if (classe.equals(m_old.getClasse())) then
+            error(M_already_defined_method, ident^txt);
+        else
+            call lm.replace(m_old, m);
+        end
+    else
+        -- Insertion d'une méthode
+        call lm.add(m);
+    end
+    BLOC^method := m;
+end
+}
+#tds {
+do
+	tds := new TDS(DEF^tds);
+	BLOC^tds := tds;
+end
+}
+#dep {
+do
+    BLOC^dep := 3; -- Enregistrement d'activation de taille 3
+    DEF^sdep := 0;
+end
+}
+#return{
+do
+    if (BLOC^hasReturn /= 0) then
+        error(M_return_const,ident^txt);
+    end
+end
+}
+#gc {
+do
+    DEF^code := DEF^machine.genConstructeur(DEF^classe.getName(), m, BLOC^code);
+
+	write tds;
+end
+}
+
+
+---------------------------------------------------------------
+-- Les Types                                                 --
+---------------------------------------------------------------
+--TYPE-> int ;                                               --
+--	#type : initialisation du type entier                --
+---------------------------------------------------------------
+--TYPE-> bool ;                                              --
+--	#type : initialisation du type booleen               --
+---------------------------------------------------------------
+--TYPE-> ident ;                                             --
+--	#type : initialisation du type pointeur vers la class--
+---------------------------------------------------------------
+TYPE-> int #type ;
+#type {
+local
+do
+	TYPE^type := new ENTIER();
+end
+}
+TYPE-> bool #type ;
+#type {
+local
+do
+	TYPE^type := new BOOLEEN();
+end
+}
+TYPE-> ident #type ;
+#type {
+ local
+    classe : INFOCLASSE ;
+ do
+    -- research l'ident (qui doit être une classe)
+    classe := TYPE^tdc.get(ident^txt);
+    --on initialise le pointeur ssi la classe pointee existe
+    if classe = nil then
+      error(M_undefined_class, ident^txt);
+    else
+       TYPE^type := new POINTER(classe);
+    end
+  end
+}
+
+
+---------------------------------------------------------------
+-- Parametres de Methodes                                    --
+---------------------------------------------------------------
+--PARFS -> ;                                                 --
+---------------------------------------------------------------
+--PARFS -> PARF PARFSX ;                                     --
+--	#attr_dep : initialisation du numero du parametre    --
+---------------------------------------------------------------
+--PARFSX -> ;                                                --
+---------------------------------------------------------------
+--PARFSX -> virg PARF PARFSX ;                               --
+--	#attr_dep : transmission dep et incrementation       --
+---------------------------------------------------------------
+--PARF -> TYPE ident ;                                       --
+--	#tdc : ajout du parametre a la liste de la methode   --
+---------------------------------------------------------------
+PARFS -> ;
+PARFS -> #attr_dep PARF PARFSX ;
+#attr_dep {
+local
+do
+	PARF^attr_dep := 0;
+	PARFSX^attr_dep := 1;
+end
+}
+PARFSX -> ;
+PARFSX -> virg #attr_dep PARF PARFSX ;
+#attr_dep {
+local
+do
+    PARF^attr_dep := PARFSX^attr_dep;
+    PARFSX1^attr_dep := PARFSX^attr_dep + 1;	
+end
+}
+PARF -> TYPE ident #tdc ;
+#tdc{
+local
+    a : INFOATTRIBUTE;
+do
+    a := PARF^params.search(ident^txt);
+    if a = nil then
+        call PARF^params.add(new INFOATTRIBUTE(ident^txt, TYPE^type,PARF^attr_dep));
+    else
+        error(M_already_defined_param,ident^txt,PARF^method.getName());
+    end
+end
+}
+
+
+---------------------------------------------------------------
+-- Corps de Methode et Bloc d'Instructions                   --
+---------------------------------------------------------------
+--BLOC -> aco INSTS acf ;                                    --
+--	#dep : transmission du deplacement                   --
+--	#return : transmission du nombre de retours trouves  --
+--	#gc : transmission du code de l'instruction          --
+---------------------------------------------------------------
+BLOC -> aco INSTS acf #dep #return #gc;
+#dep {
+do
+    BLOC^sdep := INSTS^sdep;
+end
+}
+#return{
+do
+    BLOC^hasReturn := INSTS^hasReturn;
+end
+}
+#gc {
+do
+    BLOC^code := INSTS^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Instructions                                              --
+---------------------------------------------------------------
+--INSTS -> ;                                                 --
+--	#dep : initialisation du dep a 0                     --
+--	#return : initialisation du nombre de retours a 0    --
+--	#gc : initialisation du code a vide                  --
+---------------------------------------------------------------
+--INSTS -> INST INSTS ;                                      --
+--	#dep : transmission somme des dep des instructions > --
+--	#dep_total : transmission des dep des instructions < --
+--	#return : transmission somme des nombres de retours <--
+--	#gc : concat et trans des code des instructions      --
+---------------------------------------------------------------
+INSTS -> #dep #return #gc;
+#dep {
+do
+    INSTS^sdep := 0;
+end
+}
+#return{
+do
+    INSTS^hasReturn := 0;
+end
+}
+#gc {
+do
+    INSTS^code := "";
+end
+}
+
+INSTS -> INST #dep INSTS #dep_total #return #gc;
+#dep {
+do
+    INSTS1^dep := INSTS^dep + INST^sdep;
+end
+}
+#dep_total {
+do
+    INSTS^sdep := INSTS1^sdep + INST^sdep;
+end
+}
+#return{
+do
+	INSTS^hasReturn := INSTS1^hasReturn + INST^hasReturn;
+end
+}
+#gc {
+do
+    INSTS^code := INST^code + INSTS1^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Declaration De Variable Locale Avec Ou Sans Init          --
+---------------------------------------------------------------
+--INST-> TYPE ident pv ;                                     --
+--	#tds : ajout de la variable a la table des symboles  --
+--	#dep : initialise le sdep avec la taille du type     --
+--	#return : initialise le nombre de retours a 0        --
+--	#gc : initialise le code avec la decl de la variable --
+---------------------------------------------------------------
+--INST-> TYPE ident affect E pv ;                            --
+--	#tds : ajout de la variable a la table des symboles  --
+--	#type : verification compatibilité des types         --
+--	#dep : initialise le sdep avec la taille du type     --
+--	#return : initialise le nombre de retours a 0        --
+--	#gc : initialise le code avec la lecture mem de var  --
+---------------------------------------------------------------
+INST-> TYPE ident pv #tds #dep #return #gc;
+global
+    i : INFOVARIABLE;
+#tds{
+local
+    a : INFOATTRIBUTE;
+    p : INFOATTRIBUTE;
+    la : LATTRIBUTES;
+do
+    i := INST^tds.searchLocally(ident^txt);
+    la := INST^classe.getAttributes();
+    a := la.search(ident^txt);
+    p := INST^params.search(ident^txt);
+    --on ajoute la variable a la table des symboles ssi elle n'existe pas encore
+    -- (ni variable, ni attribut, ni parametre)
+    if i /= nil then
+        error(M_already_defined_var, ident^txt, INST^classe.getName());
+    elseif a /= nil then
+        error(M_ident_used_attr, ident^txt, INST^classe.getName());
+    elseif p /= nil then
+        error(M_already_defined_param, ident^txt, INST^classe.getName());
+    else
+        -- Créer une variable, et l'ajouter dans la TDS
+        i := new INFOVARIABLE(TYPE^type, INST^dep);
+        call INST^tds.put(ident^txt, i);
+    end
+end
+}
+#dep {
+do
+    INST^sdep := TYPE^type.getSize();
+end
+}
+#return{
+do
+    INST^hasReturn := 0;
+end
+}
+#gc {
+do
+        INST^code := INST^machine.genDecl(i);
+end
+}
+
+INST-> TYPE ident affect E pv #tds #type #dep #return #gc;
+#tds{
+local
+    a : INFOATTRIBUTE;
+    p : INFOATTRIBUTE;
+    la : LATTRIBUTES;
+    i : INFOVARIABLE;
+do
+    i := INST^tds.searchLocally(ident^txt);
+    la := INST^classe.getAttributes();
+    a := la.search(ident^txt);
+    p := INST^params.search(ident^txt);
+    --on ajoute la variable a la table des symboles ssi elle n'existe pas encore
+    -- (ni variable, ni attribut, ni parametre)
+    if i /= nil then
+        error(M_already_defined_var, ident^txt, INST^classe.getName());
+    elseif a /= nil then
+        error(M_ident_used_attr, ident^txt, INST^classe.getName());
+    elseif p /= nil then
+        error(M_already_defined_param, ident^txt, INST^classe.getName());
+    else
+        -- Créer une variable, et l'ajouter dans la TDS
+        i := new INFOVARIABLE(E^type, INST^dep);
+        call INST^tds.put(ident^txt, i);
+    end
+end
+}
+#type {
+local
+do
+	if (~TYPE^type.compareTo(E^type)) then
+		error(M_decl_type_mismatch_error, E^type, TYPE^type, INST^method);
+	end
+end
+}
+#dep {
+do
+    INST^sdep := TYPE^type.getSize();
+end
+}
+#return{
+do
+    INST^hasReturn := 0;
+end
+}
+#gc {
+do
+	INST^code := INST^machine.genLectureMem(E^code, E^type, E^est_valeur);
+end
+}
+
+
+---------------------------------------------------------------
+-- Instruction Expression                                    --
+---------------------------------------------------------------
+--INST -> E pv ;                                             --
+--	#dep : initialise le sdep a 0                        --
+--	#return : initialise le nombre de retours a 0        --
+--	#gc : transmission du code                           --
+---------------------------------------------------------------
+INST -> E pv #dep #return #gc;
+#dep {
+do
+    INST^sdep := 0;
+end
+}
+#return{
+do
+    INST^hasReturn := 0;
+end
+}
+#gc {
+do
+    INST^code := E^code;
+end
+}
+
+
+---------------------------------------------------------------
+-- Bloc d'Instructions                                       --
+---------------------------------------------------------------
+--INST -> BLOC ;                                             --
+--	#tds : creation d'une table de symboles pour le bloc --
+--	#dep : initialise le sdep a 0                        --
+--	#return : transmission du nombre de retours          --
+--	#gc : concatenation des code avec la liberation mem  --
+---------------------------------------------------------------
+INST -> #tds BLOC #dep #return #gc;
+global
+	tds : TDS;
+#tds {
+do
+	tds := new TDS(INST^tds);
+	BLOC^tds := tds;
+end
+}
+#dep {
+do
+    INST^sdep := 0; -- Le bloc est nettoyé en sortie
+end
+}
+#return{
+do
+    INST^hasReturn := BLOC^hasReturn;
+end
+}
+#gc {
+do
+    INST^code := BLOC^code + INST^machine.genFree(BLOC^sdep);
+
+	write tds;
+end
+}
+
+
+---------------------------------------------------------------
+-- Conditionnelle                                            --
+---------------------------------------------------------------
+--INST -> si paro E parf BLOC SIX ;                          --
+--	#type : verification compatibilité des types         --
+--	#dep : initialise le sdep a 0                        --
+--	#return : transmission somme ddes nombre de retours  --
+--	#gc : transmission code de l'instruction si          --
+---------------------------------------------------------------
+--SIX -> sinon BLOC ;                                        --
+--	#return : transmission du nombre de retours          --
+--	#gc : transmission du code                           --
+---------------------------------------------------------------
+--SIX ->;                                                    --
+--	#return : initialise le nombre de retours a 0        --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+INST -> si paro E #type parf BLOC SIX #dep #return #gc;
+#type {
+local
+do
+	if (~E^type.compareTo(new BOOLEEN())) then
+		error(M_decl_type_mismatch_error, E^type.getName(), "booleen", INST^method.getName());
+	end		
+end
+}
+#dep {
+do
+    INST^sdep := 0;
+end
+}
+#return{
+do
+	INST^hasReturn := BLOC^hasReturn + SIX^hasReturn; 
+end
+}
+#gc {
+do
+    INST^code := INST^machine.genSi(E^code, BLOC^code, SIX^code);
+end
+}
+
+SIX -> sinon BLOC #return #gc;
+#return{
+do
+    SIX^hasReturn := BLOC^hasReturn;
+end
+}
+#gc {
+do
+    SIX^code := BLOC^code;
+end
+}
+
+SIX -> #return #gc;
+#return{
+do
+    SIX^hasReturn := 0;
+end
+}
+#gc {
+do
+    SIX^code := "";
+end
+}
+
+
+---------------------------------------------------------------
+-- Tant Que                                                  --
+---------------------------------------------------------------
+--INST ->  tantque paro E parf BLOC;                         --
+--	#type : verification compatibilite des types         --
+--	#dep : initialise le deplacement a 0                 --
+--	#return : initialise le nombre de retours a 0        --
+--	#gc : transmission du code pour instruction tant que --
+---------------------------------------------------------------
+INST ->  tantque paro E #type parf BLOC #dep #return #gc;
+#type {
+do
+    if (~E^type.compareTo(new BOOLEEN())) then
+        error(M_decl_type_mismatch_error, E^type.getName(), "booleen", INST^method);
+    end
+end
+}
+#dep {
+do
+    INST^sdep := 0;
+end
+}
+#return{
+do
+    INST^hasReturn := 0 ;
+end
+}
+#gc {
+do
+    INST^code := INST^machine.genTq(E^code,BLOC^code);
+end
+}
+
+
+---------------------------------------------------------------
+-- Return                                                    --
+---------------------------------------------------------------
+--INST -> retour E pv ;                                      --
+--	#type : verification du type de retour (!!heritage)  --
+--	#dep : initialise le deplacement a 0                 --
+--	#return : verifie l'existence du type et initialise  --
+--le nombre de retours a 1
+--	#gc : concatene et transmet les codes avec gen retour--
+---------------------------------------------------------------
+INST -> retour E #type pv #dep #return #gc;
+#type{
+do
+    -- On vérifie la cohérence du type du retour
+    -- Il faut penser à l'héritage : le type retourné peut être
+    -- un type hérité du type de retour déclaré
+        if (~INST^returnType.compareTo(E^type)) then
+        	error(M_return_type_mismatch, E^type.getName(), INST^returnType.getName(), INST^method);
+    	end
+end
+}
+#dep {
+do
+    INST^sdep := 0;
+end
+}
+#return{
+local
+    t : DTYPE;
+do
+    t := INST^method.getReturnType();
+    INST^hasReturn := 1;
+    --le retour ne sera valide que s'il n'est pas null ni vide
+    if (t /= nil) then
+        match t
+        with VIDE then
+            error(M_invalid_return,INST^method.getName(), E^type.getName());
+        end
+    else
+            error(M_return_const,INST^method.getClasse(), E^type.getName());
+    end
+end
+}
+#gc {
+do
+    INST^code := E^code + INST^machine.genRetour(INST^method,INST^tds);
+end
+}
+
+
+---------------------------------------------------------------
+-- Les Expressions                                           --
+---------------------------------------------------------------
+--E ->  ER AFFX ;                                            --
+--	#type : transmission des types                       --
+--	#gc : transmet le code avec ecriture/lecture memoire --
+--selon si on a une adresse ou une valeur
+---------------------------------------------------------------
+E ->  ER #type AFFX #gc;
+#type {
+local
+do
+	E^type := ER^type;
+	AFFX^returnType := ER^type;
+end
+}
+#gc {
+do
+    if (AFFX^code.equals("")) then
+	E^est_valeur := ER^est_valeur;
+    else
+	E^est_valeur := true;
+    end
+    if ~AFFX^code.equals("") then -- C'est une affectation
+        -- L'expression de gauche doit être une adresse
+        if ER^est_valeur then
+            error(M_not_adr, E^classe.getName());
+        end         
+        E^code := E^machine.genEcritureMem(ER^code, AFFX^code, ER^type);
+    else
+        E^code := E^machine.genLectureMem(ER^code, ER^type, ER^est_valeur);
+    end
+end
+}
+
+
+---------------------------------------------------------------
+-- Affectation                                               --
+---------------------------------------------------------------
+--AFFX ->  affect ER  ;                                      --
+--	#type : verification du type d'affectation           --
+--	#gc : transmet le code le lecture memoire            --
+---------------------------------------------------------------
+--AFFX -> ;                                                  --
+--	#gc : initialisation du code a vide                  --
+---------------------------------------------------------------
+AFFX ->  affect ER #type #gc;
+#type {
+do
+    -- Vérification que le type déclaré correspond à celui affecté
+    if (~AFFX^returnType.compareTo(ER^type)) then
+        error(M_decl_type_mismatch_error, AFFX^returnType.getName(), ER^type.getName(), AFFX^method.getName());
+    end
+end
+}
+#gc {
+do
+    AFFX^code := AFFX^machine.genLectureMem(ER^code, ER^type, ER^est_valeur);
+end
+}
+
+AFFX -> #gc;
+#gc {
+do
+    AFFX^code := "";
+end
+}
+
+
+---------------------------------------------------------------
+-- Relation                                                  --
+---------------------------------------------------------------
+--ER ->   ES ERX ;                                           --
+--	#returnType : Transmet le type de retour pour calcul --
+--	#type : transmission du type                         --
+--	#gc : transmission du code (avec lecture memoire)?   --
+---------------------------------------------------------------
+--ES ->  TERME ESX ;                                         --
+--	#returnType : transmission type de retour pour calcul--
+--	#type : transmission du type                         --
+--	#gc : transmission du code (avec lecture memoire)?   --
+---------------------------------------------------------------
+--ERX ->  OPREL ES ;                                         --
+--	#type : verification compabitibilite types et op     --
+--	#gc : concatenation des code avec lecture memoire    --
+---------------------------------------------------------------
+--ERX -> ;                                                   --
+--	#type : transmission du type de retour               --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+--OPREL -> inf ;                                             --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a entier   --
+--	#gc : init code avec l'operateur inferieur strict    --
+---------------------------------------------------------------
+--OPREL -> infeg ;                                           --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a entier   --
+--	#gc : init code avec l'operateur inferieur ou egal   --
+---------------------------------------------------------------
+--OPREL -> sup ;                                             --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a entier   --
+--	#gc : init code avec l'operateur superieur strict    --
+---------------------------------------------------------------
+--OPREL -> supeg ;                                           --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a entier   --
+--	#gc : init code avec l'operateur superieur ou egal   --
+---------------------------------------------------------------
+--OPREL -> eg ;                                              --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a polymorph--
+--	#gc : init code avec l'operateur egalite             --
+---------------------------------------------------------------
+--OPREL -> neg ;                                             --
+--	#type : initialise le type de la relation a booleen  --
+--                                    l'operateur a polymorph--
+--	#gc : init code avec l'operateur non egalite         --
+---------------------------------------------------------------
+ER ->   ES #returnType ERX #type #gc;
+#returnType {
+local
+do
+	ERX^returnType := ES^type;
+end
+}
+#type {
+do
+    ER^type := ERX^type;	
+end
+}
+#gc {
+do
+    if (ERX^code.equals("")) then
+        ER^code := ES^code;
+        ER^est_valeur := ES^est_valeur;
+    else -- Resultat de la relation
+       ER^code := ER^machine.genLectureMem(ES^code, ES^type, ES^est_valeur) + ERX^code;
+       ER^est_valeur := true; 
+    end
+end
+}
+ES ->  TERME #returnType ESX #type #gc;
+#returnType {
+local
+do
+	ESX^returnType := TERME^type;
+end
+}
+#type {
+do
+    ES^type := ESX^type;
+end
+}
+#gc {
+do
+--    ES^code := TERME^code + ESX^code;
+    if ESX^code.equals("") then
+        ES^est_valeur := TERME^est_valeur;
+        ES^code := TERME^code + ESX^code;
+    else
+        ES^est_valeur := true;
+        ES^code := ES^machine.genLectureMem(TERME^code, TERME^type, TERME^est_valeur) + ESX^code;
+    end
+end
+}
+
+ERX ->  OPREL ES #type #gc;
+#type {
+do
+    -- Il faut verifier si les membres de gauche et droite ont meme type
+    if (~ES^type.compareTo(ERX^returnType)) then
+        error(M_op_type_mismatch_error, ERX^returnType.getName(), ES^type.getName(), ERX^method.getName());
+    --et que l'operateur est compatible avec les deux membres
+    elseif (~OPREL^op_type.compareTo(ERX^returnType)) then
+        error(M_op_unattended_type, OPREL^op_type.getName(), ES^type.getName());
+    end
+    ERX^type := OPREL^type;
+end
+}
+#gc {
+do
+    ERX^code := ERX^machine.genLectureMem(ES^code, ES^type, ES^est_valeur) + OPREL^code;
+end
+}
+
+ERX -> #type #gc;
+#type {
+do
+    ERX^type := ERX^returnType;
+end
+}
+#gc {
+do
+    ERX^code := "";
+end
+}
+
+OPREL -> inf #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new ENTIER();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genInf();
+end
+}
+
+OPREL -> infeg #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new ENTIER();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genInfEg();
+end
+}
+
+OPREL -> sup #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new ENTIER();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genSup();
+end
+}
+
+OPREL -> supeg #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new ENTIER();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genSupEg();
+end
+}
+
+OPREL -> eg #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new POLYMORPHEOP();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genEg();
+end
+}
+
+OPREL -> neg #type #gc;
+#type{
+do
+    OPREL^type := new BOOLEEN();
+    OPREL^op_type := new POLYMORPHEOP();
+end
+}
+#gc {
+do
+    OPREL^code := OPREL^machine.genNeq();
+end
+}
+
+
+---------------------------------------------------------------
+-- Addition, ...                                             --
+---------------------------------------------------------------
+--ESX ->   OPADD TERME ESX ;                                 --
+--	#type : varification compatibilite op-membres GD     --
+--	#gc : concatenation des codes avec lecture memoire   --
+---------------------------------------------------------------
+--ESX ->;                                                    --
+--	#type : transmission du type de retour               --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+--OPADD -> plus ;                                            --
+--	#type : initialise le type a entier                  --
+--	#gc : transmet le code pour l'addition               --
+---------------------------------------------------------------
+--OPADD -> moins ;                                           --
+--	#type : initialise le type a entier                  --
+--	#gc : transmet le code pour la soustraction          --
+---------------------------------------------------------------
+--OPADD -> ou ;                                              --
+--	#type : initialise le type a booleen                 --
+--	#gc : transmet le code pour le ou                    --
+---------------------------------------------------------------
+--TERME ->  FACTEUR TX ;                                     --
+--	#type : transmet les types et type de retour         --
+--	#gc : transmission de code (avec lecture memoire)?   --
+---------------------------------------------------------------
+ESX ->   OPADD TERME #type ESX #gc;
+#type {
+local
+    t : DTYPE;
+do
+     t := OPADD^type;
+    -- On vérfie la compatibilité de l'opérateur avec son membre gauche
+    if (~ESX^returnType.compareTo(t)) then
+        error(M_op_unattended_type,ESX^returnType.getName(), OPADD^type.getName());
+    end	
+     -- On vérfie la compatibilité de l'opérateur avec son membre droit
+     if (~t.compareTo(TERME^type)) then
+        error(M_op_unattended_type,t, TERME^type.getName());
+    end
+    ESX^type := t;
+    ESX1^returnType := t;
+end
+}
+#gc {
+do
+    ESX^code := ESX^machine.genLectureMem(TERME^code, TERME^type, TERME^est_valeur) + OPADD^code + ESX1^code;
+end
+}
+
+ESX -> #type #gc;
+#type {
+do
+    ESX^type := ESX^returnType;
+end
+}
+#gc {
+do
+    ESX^code := "";
+end
+}
+
+OPADD -> plus #type #gc;
+#type{
+do
+    OPADD^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPADD^code := OPADD^machine.genAddition();
+end
+}
+
+OPADD -> moins #type #gc;
+#type{
+do
+    OPADD^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPADD^code := OPADD^machine.genMoins();
+end
+}
+
+OPADD -> ou #type #gc;
+#type{
+do
+    OPADD^type := new BOOLEEN();
+end
+}
+#gc {
+do
+    OPADD^code := OPADD^machine.genOu();
+end
+}
+
+TERME ->  FACTEUR #type TX #gc;
+#type {
+do
+    TX^returnType := FACTEUR^type;
+    TERME^type := FACTEUR^type;
+end
+}
+#gc {
+do
+--    TERME^code := FACTEUR^code + TX^code;
+    if (TX^code.equals("")) then
+        TERME^code := FACTEUR^code + TX^code;
+        TERME^est_valeur := FACTEUR^est_valeur;
+    else
+        TERME^code := TERME^machine.genLectureMem(FACTEUR^code, FACTEUR^type,FACTEUR^est_valeur) + TX^code;
+        TERME^est_valeur := true;
+    end
+end
+}
+
+---------------------------------------------------------------
+-- multiplication, ...                                       --
+---------------------------------------------------------------
+--TX ->   OPMUL FACTEUR TX ;                                 --
+--	#returnType : verification type membre gauche et op  --
+--	#type : verification type membre droit et operateur  --
+--	#gc : concat et transmet les codes avec lecture mem  --
+---------------------------------------------------------------
+--TX -> ;                                                    --
+--	#type : transmission type du retour                  --
+---------------------------------------------------------------
+--OPMUL -> mult ;                                            --
+--	#type : initialise le type a entier                  --
+--	#gc : initialise avec le code pour la multiplication --
+---------------------------------------------------------------
+--OPMUL -> div ;                                             --
+--	#type : initialise le type a entier                  --
+--	#gc : initialise avec le code pour la division       --
+---------------------------------------------------------------
+--OPMUL -> mod ;                                             --
+--	#type : initialise le type a entier                  --
+--	#gc : initialise avec le code pour le modulo         --
+---------------------------------------------------------------
+--OPMUL -> et ;                                              --
+--	#type : initialise le type a booleen                 --
+--	#gc : initialise avec le code pour l'operateur et    --
+---------------------------------------------------------------
+TX ->   OPMUL #returnType FACTEUR #type TX #gc;
+#returnType {
+do
+    -- On vérifie la compatibilité du membre gauche et de l'opérateur
+    if (~TX^returnType.compareTo(OPMUL^type)) then
+        error(M_op_unattended_type,TX^returnType.getName(), OPMUL^type.getName());
+    end
+end
+}
+#type {
+local
+    t : DTYPE;
+do
+     t := FACTEUR^type;
+     -- et de l'opérateur et du membre droit
+     if (~OPMUL^type.compareTo(t)) then
+        error(M_op_unattended_type, t, OPMUL^type.getName());
+    end
+    TX^type := t;
+    TX1^returnType := t;
+end
+}
+#gc {
+do
+    TX^code := TX^machine.genLectureMem(FACTEUR^code, FACTEUR^type, FACTEUR^est_valeur) + OPMUL^code + TX1^code;
+end
+}
+
+TX -> #type #gc;
+#type {
+do
+	TX^type := TX^returnType;
+end
+}
+#gc {
+do
+    TX^code := "";
+end
+}
+
+OPMUL -> mult #type #gc;
+#type{
+do
+    OPMUL^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPMUL^code := OPMUL^machine.genMult();
+end
+}
+
+OPMUL -> div #type #gc;
+#type{
+do
+    OPMUL^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPMUL^code := OPMUL^machine.genDiv();
+end
+}
+
+OPMUL -> mod #type #gc;
+#type{
+do
+    OPMUL^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPMUL^code := OPMUL^machine.genMod();
+end
+}
+
+OPMUL -> et #type #gc;
+#type{
+do
+    OPMUL^type := new BOOLEEN();
+end
+}
+#gc {
+do
+    OPMUL^code := OPMUL^machine.genEt();
+end
+}
+
+
+---------------------------------------------------------------
+-- Unaire                                                    --
+---------------------------------------------------------------
+--FACTEUR ->  OPUN FACTEUR ;                                 --
+--	#type : verification compatibilite des types         --
+--	#gc : concatenation et trans codes avec lecture mem  --
+---------------------------------------------------------------
+--OPUN -> plus;                                              --
+--	#type : initialise le type a entier                  --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+--OPUN -> moins;                                             --
+--	#type : initialise le type a entier                  --
+--	#gc : initialise avec le code avec l'operateur moins --
+---------------------------------------------------------------
+--OPUN -> non;                                               --
+--	#type : initialise le type a booleen                 --
+--	#gc : initialise avec le code de l'operateur non     --
+---------------------------------------------------------------
+FACTEUR ->  OPUN FACTEUR #type #gc;
+#type {
+do
+    if (~OPUN^type.compareTo(FACTEUR1^type)) then
+        error(M_op_unattended_type,FACTEUR1^type.getName(), OPUN^type.getName());
+    else
+        FACTEUR^type := FACTEUR1^type;
+    end
+end
+}
+#gc {
+do
+    FACTEUR^code := FACTEUR^machine.genLectureMem(FACTEUR1^code, FACTEUR1^type, FACTEUR1^est_valeur) + OPUN^code;
+    FACTEUR^est_valeur := true;
+end
+}
+
+OPUN -> plus #type #gc;
+#type{
+do
+    OPUN^type := new ENTIER();
+end
+}
+#gc {
+do
+    -- Rien à faire :)
+    OPUN^code := "";
+end
+}
+
+OPUN -> moins #type #gc;
+#type{
+do
+    OPUN^type := new ENTIER();
+end
+}
+#gc {
+do
+    OPUN^code := OPUN^machine.genOpp();
+end
+}
+
+OPUN -> non #type #gc;
+#type{
+do
+    OPUN^type := new BOOLEEN();
+end
+}
+#gc {
+do
+    OPUN^code := OPUN^machine.genNon();
+end
+}
+
+
+---------------------------------------------------------------
+-- Expressions de Base                                       --
+---------------------------------------------------------------
+
+---------------------------------------------------------------
+-- Entiers                                                    --
+---------------------------------------------------------------
+--FACTEUR -> entier;                                         --
+--	#type : initialise le type avec entier               --
+--	#gc : initialise le code avec la gen d'un entier     --
+---------------------------------------------------------------
+FACTEUR -> entier #type #gc;
+#type{
+do
+    FACTEUR^type := new ENTIER();
+end
+}
+#gc {
+do
+    FACTEUR^code := FACTEUR^machine.genEntier(entier^txt);
+    FACTEUR^est_valeur := true;
+end
+}
+
+
+---------------------------------------------------------------
+-- Booleens                                                  --
+---------------------------------------------------------------
+--FACTEUR -> vrai;                                           --
+--	#type : initialise le type avec booleen              --
+--	#gc : initialise le code avec la gen du booleen vrai --
+---------------------------------------------------------------
+--FACTEUR -> faux;                                           --
+--	#type : initialise le type avec booleen              --
+--	#gc : initialise le code avec la gen du booleen faux --
+---------------------------------------------------------------
+FACTEUR -> vrai #type #gc;
+#type{
+do
+    FACTEUR^type := new BOOLEEN();
+end
+}
+#gc {
+do
+    FACTEUR^code := FACTEUR^machine.genVrai();
+    FACTEUR^est_valeur := true;
+end
+}
+
+FACTEUR -> faux #type #gc;
+#type{
+do
+    FACTEUR^type := new BOOLEEN();
+end
+}
+#gc {
+do
+    FACTEUR^code := FACTEUR^machine.genFaux();
+    FACTEUR^est_valeur := true;
+end
+}
+
+
+---------------------------------------------------------------
+-- null                                                      --
+---------------------------------------------------------------
+--FACTEUR -> null;                                           --
+--	#type : initialise le type avec null                 --
+--	#gc : initialise le code avec la generation de null  --
+---------------------------------------------------------------
+--FACTEUR -> F;                                              --
+--	#type : transmission du type                         --
+--	#gc : transmission de est_valeur et du code          --
+---------------------------------------------------------------
+FACTEUR -> null #type #gc;
+#type{
+do
+    FACTEUR^type := new NULL();
+end
+}
+#gc {
+do
+    FACTEUR^code := FACTEUR^machine.genNull();
+    FACTEUR^est_valeur := true;
+end
+}
+
+FACTEUR -> F #type #gc;
+#type {
+local
+do
+	FACTEUR^type := F^type;
+end
+}
+#gc {
+local
+do
+	FACTEUR^est_valeur := F^est_valeur;
+	FACTEUR^code := F^code;
+end
+ }
+
+
+---------------------------------------------------------------
+-- Expression Parenthésée                                    --
+---------------------------------------------------------------
+--F -> paro E parf ;                                         --
+--	#type : transmission du type                         --
+--	#gc : transmission de est_valeur et du code          --
+---------------------------------------------------------------
+F -> paro E parf #type #gc;
+#type {
+local
+do
+	F^type := E^type;
+end
+}
+#gc {
+do
+    F^code := E^code;
+    F^est_valeur := true;
+end
+}
+
+
+---------------------------------------------------------------
+-- New                                                       --
+---------------------------------------------------------------
+--F -> nouveau TYPE paro ARGS parf;                          --
+--	#type : verification type de TYPE et transmission    --
+--	#attr_dep : initialisation place de l'attribut a 1   --
+--	#tdc : verification de l'existence du bon constructer--
+--	#gc : transmet le code d'appel de constructeur       --
+---------------------------------------------------------------
+F -> nouveau TYPE #type paro #attr_dep ARGS #tdc parf #gc;
+global
+    m   : INFOMETHOD;
+    p   : POINTER;
+#type {
+local
+    t : DTYPE;
+do
+    t := TYPE^type;
+    match t
+    with POINTER then
+	p := t;
+        F^type := t;
+    else
+        error(M_decl_type_mismatch_error, "pointeur", TYPE^type.getName(), F^method.getName());
+    end
+end
+}
+#attr_dep {
+local
+do
+	ARGS^attr_dep := 1;
+end
+}
+#tdc {
+local
+    c   : INFOCLASSE;
+    lm  : LMETHODS;
+    la  : LATTRIBUTES;
+do
+    la := ARGS^params_new;
+    c := p.getClasse();
+    lm := c.getMethods();
+    m := new INFOMETHOD(c.getName(), new LATTRIBUTES(), c.getName(), TYPE^type);
+    m := lm.search(m);
+    -- On vérifie que le constructeur existe bien
+    -- Un constructeur a 0 argument existe toujours (celui par défaut)
+    if (m = nil & la.size() /= 0) then
+        error(M_undefined_constructor, c.getName(), la.toString());
+    end
+end
+}
+#gc {
+do
+    F^code := F^machine.genAppelConstructeur(TYPE^type, m, ARGS^code);
+    F^est_valeur := true;
+end
+}
+
+---------------------------------------------------------------
+---- Objet Courant                                           --
+---------------------------------------------------------------
+----F -> this  FX;                                           --
+---------------------------------------------------------------
+--F -> this  FX;                                             --
+---------------------------------------------------------------
+---- objet parent                                            --
+---------------------------------------------------------------
+----F -> super  FX;                                          --
+---------------------------------------------------------------
+--F -> super  FX;                                            --
+---------------------------------------------------------------
+
+
+---------------------------------------------------------------
+-- Acces Variable, Parametre ou Attribut de this             --
+---------------------------------------------------------------
+--F -> ident FX;                                             --
+--	#att_access : recupere l'ident actuel pour plus tard --
+--                    transmet la classe pour la prochaine RP--
+--                    initialise le type de retour a null    --
+--	#hcode : initialise le code herite a vide            --
+--	#type : on cherche et on transmet le type de l'expr  --
+--	#gc : on trasmet le code de la variable ou le code   --
+-- pour acceder a la varible selon le cas
+---------------------------------------------------------------
+--FX -> ;                                                    --
+--	#type : initialise le type a nil                     --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+--FX -> pt ident FX;                                         --
+--	#att_access : recherche la classe de l'ident         --
+--	#type : on transmet le type final de l'expression    --
+--	#gc : transmission du code d'acces a l'attribut avec --
+-- generation de verification NPE                            --
+---------------------------------------------------------------
+F -> ident #att_access #hcode FX #type #gc;
+global
+    v : INFOVARIABLE;
+    a : INFOATTRIBUTE;
+    p : INFOATTRIBUTE;
+#att_access {
+do
+	FX^hclasse := F^classe;
+	FX^returnType := nil;
+	FX^prec_ident := ident^txt;
+end
+}
+#hcode {
+local
+do
+	FX^hcode := "";
+end
+}
+#type {
+local
+    la : LATTRIBUTES;
+    t : DTYPE;
+do
+    t := nil;
+    -- si FX^type = nil, FX aura ensuite pour regle FX -> ;
+    if (FX^type /= nil) then
+        t := FX^type;
+    else
+        -- On cherche le type : c'est l'accès a une locale, un attribut ou un paramètre
+	-- si existence
+        v := F^tds.searchGlobally(ident^txt);
+        la := F^classe.getAttributes();
+        a := la.search(ident^txt);
+        p := F^params.search(ident^txt);
+        if (v /= nil) then
+            t := v.getType();
+        elseif (p /= nil) then
+            t := p.getType();
+        elseif (a /= nil) then
+            t := a.getType();
+        else
+            error(M_undefined_ident, ident^txt, F^classe.getName());
+        end
+    end
+    F^type := t;
+end
+}
+#gc {
+do
+    -- Si FX^code != ""
+    F^code := FX^code;
+    F^est_valeur := FX^est_valeur;
+    
+    -- Sinon
+    if (v /= nil) then 
+        F^code := F^machine.genAdresseVariable(v);
+        F^est_valeur := false;
+    elseif (p /= nil) then
+        F^code := F^machine.genAdresseParam(p);
+        F^est_valeur := false;
+    elseif (a /= nil) then
+        F^code := F^machine.genEmpilerThis(F^method) + F^machine.genAdresseAttribut(a);
+        F^est_valeur := false;
+    end
+end
+}
+
+FX -> #type #gc;
+#type {
+do
+    FX^type := nil;
+end
+}
+#gc {
+do
+    FX^code := "";
+    FX^est_valeur := false;
+end
+}
+
+FX -> pt ident #att_access FX #type #gc;
+global
+    c : INFOCLASSE;
+    code : String;
+    att : INFOATTRIBUTE;
+    a : INFOATTRIBUTE;
+    p : INFOATTRIBUTE;
+    v : INFOVARIABLE;
+#att_access {
+local
+    t : DTYPE;
+    la : LATTRIBUTES;
+do
+    FX1^prec_ident := ident^txt;
+    t := FX^returnType;
+    if (t = nil) then
+    -- On vient de la règle F -> ident FX (voir règle #hatt_access)
+    -- On tente de search la classe de FX^prec_ident
+        la := FX^hclasse.getAttributes();
+        a := la.search(FX^prec_ident);
+        p := FX^params.search(FX^prec_ident);
+        v := FX^tds.searchGlobally(FX^prec_ident);
+        if (v /= nil) then
+            t := v.getType();
+        elseif (a /= nil) then
+            t := a.getType();
+        elseif (p /= nil) then
+            t := p.getType();
+        else
+            t := nil;
+            error(M_undefined_ident, FX^prec_ident, FX^classe.getName());
+        end
+    end
+    --recuperation de la classe si il n'y a pas erreur
+    match t
+    with POINTER then
+        c := t.getClasse();
+    else
+        error(M_not_ptr, FX^prec_ident, FX^classe.getName());
+    end
+    FX1^returnType := new POINTER(c);
+end
+}
+#type {
+local
+    t : DTYPE;
+    la : LATTRIBUTES;
+    i : INFOATTRIBUTE;
+do
+    t := nil;
+    if (FX1^type /= nil) then
+        t := FX1^type;
+    else -- C'est le type de ident -> un attribut
+        -- On le cherche donc
+        la := c.getAttributes();
+        i := la.search(ident^txt);
+        if (i /= nil) then
+            t := i.getType();
+	    att := i;
+        else
+            error(M_undefined_attr, ident^txt, c.getName());
+        end
+    end
+    FX^type := t;
+end
+}
+#gc {
+local
+    npe : String;
+do
+    code := "";
+    if (FX^returnType = nil) then
+    -- On vient de la règle F -> ident FX
+    -- On tente de chercher la classe de FX^idt
+        if (v /= nil) then
+            code := FX^machine.genAccesVariable(v);
+        elseif (a /= nil) then
+            code := FX^machine.genEmpilerThis(FX^method) + FX^machine.genAccesAttribut(a);
+        elseif (p /= nil) then
+            code := FX^machine.genAccesParam(p);
+	end
+    end
+    --generation code pour la verification de null pointer exception
+    npe := FX^machine.genVerifNPE();
+    FX^code := code;
+    if (FX1^code.equals("")) then
+    -- Acces attributs
+        FX^code := code + FX^machine.genAdresseAttribut(att);
+        FX^est_valeur := false;
+    else
+        if (code.equals("")) then
+            FX^code := npe + FX1^code;
+        else
+            FX^code := code + npe +  FX1^code;
+        end
+        FX^est_valeur := FX1^est_valeur;
+    end
+end
+}
+
+
+---------------------------------------------------------------
+-- Appel Methode sur Objet                                   --
+---------------------------------------------------------------
+--FX -> paro ARGS parf FX;                                   --
+--	#attr_dep : initialise la numerotation de param a 0  --
+--	#tds : on verifie l'existence de la methode et on    --
+-- verifie le type de retour                                 --
+--	#type : on transmet le type de l'expression          --
+--	#gc : on transmet param, this et appel de methode    --
+---------------------------------------------------------------
+FX -> paro #attr_dep ARGS parf #tds FX #type #gc;
+global
+    m  : INFOMETHOD;
+    code : String;
+#attr_dep {
+local
+do
+	ARGS^attr_dep := 0;
+end
+}
+#tds {
+local
+    lm : LMETHODS;
+    la : LATTRIBUTES;
+    c  : INFOCLASSE;
+    t  : DTYPE;
+do
+    la := ARGS^params_new;
+    c := FX^classe;
+    if (FX^returnType /= nil) then -- on ne vient pas de la regle F -> ident FX; (voir regle #att_access)
+        code := "";
+        match FX^returnType
+        with POINTER then
+            c  := FX^returnType.getClasse();
+        else
+            error(M_not_ptr, FX^prec_ident, FX^classe.getName());
+        end
+    end
+    lm := c.getMethods();
+    m  := new INFOMETHOD(FX^prec_ident,la,c.getName(),nil);
+    m  := lm.search(m);
+    if (m /= nil) then
+	t := m.getReturnType();
+        FX1^returnType := t;
+    else
+        error(M_undefined_mbr, FX^prec_ident, la.toString(), c.getName());
+    end
+end
+}
+#type {
+do
+    if (FX1^type /= nil) then
+        FX^type := FX1^type;
+    else
+        FX^type := m.getReturnType();
+    end
+end
+}
+#gc {
+local
+    t : DTYPE;
+    c : INFOCLASSE;
+do
+    c := FX^tdc.get(m.getClasse());
+    code := FX^machine.genEmpilerThis(FX^method);
+    FX^code := "" + code + ARGS^code + FX^machine.genAppelMeth(c, m) + FX1^code;
+    FX^est_valeur := FX1^est_valeur;
+    
+    -- Dans le cas où FX1 -> ;
+    if FX1^code.equals("") then
+        FX^est_valeur := true;
+   end
+end
+}
+
+---------------------------------------------------------------
+-- Liste d'Arguments d'Appel de Methode                      --
+---------------------------------------------------------------
+--ARGS ->  E ARGSX  ;                                        --
+--	#dep : on incrémente la numerotation de parametres   --
+--	#par : ajoute le param dans la liste et la transmet  --
+--	#gc : concatene et transmet les code                 --
+---------------------------------------------------------------
+--ARGS -> ;                                                  --
+--	#par : initialise la liste de parametres a vide      --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+--ARGSX ->   virg E ARGSX  ;                                 --
+--	#dep : incremente la numerotation des parametres     --
+--	#par : ajoute un param a la liste et la transmet     --
+--	#gc : concatene et transmet les code                 --
+---------------------------------------------------------------
+--ARGSX -> ;                                                 --
+--	#par : initialise la liste de parametres a vide      --
+--	#gc : initialise le code a vide                      --
+---------------------------------------------------------------
+ARGS ->  E #dep ARGSX #par #gc;
+#dep {
+local
+do
+    ARGSX^attr_dep := ARGS^attr_dep + 1;
+end
+}
+#par {
+local
+do
+    call ARGSX^params_new.add(new INFOATTRIBUTE("", E^type, ARGS^attr_dep));
+    ARGS^params_new := ARGSX^params_new;
+end
+}
+#gc {
+do
+    ARGS^code := ARGSX^code + "\t; Param " + ARGS^attr_dep + "\n" + E^code;
+end
+}
+
+ARGS -> #par #gc;
+#par {
+local
+do
+	ARGS^params_new := new LATTRIBUTES();
+end
+}
+#gc {
+do
+    ARGS^code := "";
+end
+}
+
+ARGSX ->   virg E #dep ARGSX #par #gc;
+#dep {
+local
+do
+    ARGSX1^attr_dep := ARGSX^attr_dep + 1;
+end
+}
+#par {
+local
+	la : LATTRIBUTES;
+do
+    la := ARGSX1^params_new;
+    call la.add(new INFOATTRIBUTE("", E^type, ARGSX^attr_dep));
+    ARGSX^params_new := ARGSX1^params_new;
+end
+}
+#gc {
+do
+    -- ARGSX^code := E^code + ARGSX1^code;
+    ARGSX^code := ARGSX1^code + "\t; Param " + ARGSX^attr_dep + "\n" + E^code;
+end
+}
+
+ARGSX -> #par #gc;
+#par {
+local
+do
+	ARGSX^params_new := new LATTRIBUTES();
+end
+}
+#gc {
+do
+    ARGSX^code := "";
+end
+}
+
+end

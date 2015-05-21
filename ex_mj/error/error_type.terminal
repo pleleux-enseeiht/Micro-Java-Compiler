@@ -1,0 +1,24 @@
+filou@Hal-Bender:~/Bureau/tdl/src$ ./mjcompiler ../ex_mj/error_type.mj 
+version 0.0.1
+Compiling ../ex_mj/error_type
+Table des Symboles :
+z : Variable de type : entier(1) et de dep : 6
+y : Variable de type : entier(1) et de dep : 4
+x : Variable de type : booleen(1) et de dep : 3
+
+Table des classes
+Classe error_type
+	Attributs :
+	Methodes :
+Methode entier main () deplacement : 0
+	Deplacement : 0
+
+
+Table des Symboles :
+EGG ../ex_mj/error_type: 5: Semantic error: Erreur de type : entier(1) trouve au lieu de booleen(1) dans la Methode entier main ().
+EGG ../ex_mj/error_type: 8: Semantic error: Erreur de type sur retour de methode : booleen au lieu de entier dans la Methode entier main ().
+EGG ../ex_mj/error_type: 11: Semantic error: Le ou les objets autour de loperande nont pas le bon type.
+EGG ../ex_mj/error_type: 14: Semantic error: La variable y dans la classe error_type est deja definie.
+EGG ../ex_mj/error_type: 20: Semantic error: Il n'y a pas de classe main dans le fichier.
+Ok.
+

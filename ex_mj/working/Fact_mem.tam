@@ -1,0 +1,170 @@
+; Table des virtuelles : tableau d'indirection des méthodes des classes
+	; INFOCLASSE Fact
+	LOADA Fact_fact_entier
+	; INFOCLASSE res
+	LOADA res_setI_entier
+	; INFOCLASSE TestFact
+
+
+
+	; Appel de la fonction main
+	CALL (LB) TestFact_main
+	 LOADL "FIN DU PROGRAMME !\n"
+	SUBR SOut
+	LOADL "VALEUR DE RETOUR : "
+	SUBR SOut
+	SUBR IOut
+	LOADL "\n"
+	SUBR SOut
+	HALT	
+; En cas d'exception 
+_NPE_
+	LOADL "Null Pointer Exception"
+	SUBR SOut
+	HALT
+
+	; Constructeur par défaut de la classe Fact
+Fact_defaut
+	; Allocation de l'espace mémoire
+	LOADL 2 ;Taille de l'objet + TDV
+	SUBR MAlloc ; Allocation 
+	LOADL 0 ; @TDV de la classe
+	LOAD (1) -2[ST] ; On récupère l'@ fournie par le malloc
+	STOREI (1) ; Et on affecte la valeur de la TDV dans l'objet crée
+	; Initialisation des attributs
+		; Initialisation de res (type entier) 
+	LOADL 42 ; Valeur par défaut: 42
+	; On récupère l'@ de this
+	LOAD (1) 3[LB]
+	LOADL 1
+	SUBR IAdd
+	STOREI (1) ; Et on sauve le tout !
+	RETURN (1) 0
+
+; Méthode fact de la classe Fact
+Fact_fact_entier
+	; Lecture mémoire
+	; @Parametre : n
+	LOADA -1 [LB]
+	LOADI (1)
+	LOADL 1
+	SUBR ILss
+	; Test condition (SI)
+	JUMPIF (0) _X_0
+	; BLOC ALORS
+	LOADL 1
+	; Retour de la fonction : 2 parametres
+	RETURN (1) 2
+
+	; BLOC SINON
+_X_0
+	; Lecture mémoire
+	; @Parametre : n
+	LOADA -1 [LB]
+	LOADI (1)
+	; On empile this
+	LOAD (1) -2[LB]
+	; Param 0
+	; Lecture mémoire
+	; @Parametre : n
+	LOADA -1 [LB]
+	LOADI (1)
+	LOADL 1
+	SUBR ISub
+	; Appel de la méthode Fact::fact
+	LOADL 0 ; Pour le CALLI (cf doc de tam)
+	LOAD (1) -3[ST] ; On récupère la valeur du pointeur
+	LOADI (1) ; On récupère l'@ de la TDV
+	; On obtient l'adresse réelle de la méthode
+	LOADI (1) ; Que l'on va chercher et mettre en tête de pile
+	CALLI ; Et on appelle la méthode.. OUF
+	SUBR IMul
+	; Retour de la fonction : 2 parametres
+	RETURN (1) 2
+
+	; FIN SI
+	; Constructeur par défaut de la classe res
+res_defaut
+	; Allocation de l'espace mémoire
+	LOADL 2 ;Taille de l'objet + TDV
+	SUBR MAlloc ; Allocation 
+	LOADL 1 ; @TDV de la classe
+	LOAD (1) -2[ST] ; On récupère l'@ fournie par le malloc
+	STOREI (1) ; Et on affecte la valeur de la TDV dans l'objet crée
+	; Initialisation des attributs
+		; Initialisation de i (type entier) 
+	LOADL 42 ; Valeur par défaut: 42
+	; On récupère l'@ de this
+	LOAD (1) 3[LB]
+	LOADL 1
+	SUBR IAdd
+	STOREI (1) ; Et on sauve le tout !
+	RETURN (1) 0
+
+; Méthode setI de la classe res
+res_setI_entier
+	; Ecriture mémoire
+	; -> Calul de l'expression
+	; Lecture mémoire
+	; @Parametre : t
+	LOADA -1 [LB]
+	LOADI (1)
+	; -> Calcul de l'adresse
+	; On empile this
+	LOAD (1) -2[ST]
+	; @Attribut : i
+	LOADL 1
+	SUBR IAdd
+	STOREI (1)
+	RETURN (1) 2
+
+	; Constructeur par défaut de la classe TestFact
+TestFact_defaut
+	; Allocation de l'espace mémoire
+	LOADL 1 ;Taille de l'objet + TDV
+	SUBR MAlloc ; Allocation 
+	LOADL 2 ; @TDV de la classe
+	LOAD (1) -2[ST] ; On récupère l'@ fournie par le malloc
+	STOREI (1) ; Et on affecte la valeur de la TDV dans l'objet crée
+	; Initialisation des attributs
+	RETURN (1) 0
+
+; Méthode main de la classe TestFact
+TestFact_main
+	;Appel au constructeur :
+	CALL (LB) Fact_defaut ; Appel du constructeur
+	;Appel au constructeur :
+	CALL (LB) res_defaut ; Appel du constructeur
+	; Valeur variable
+	LOAD (1) 4[LB]
+	; Vérification d'une NPE
+	LOAD (1) -1[ST]
+	JUMPIF (0) _NPE_
+	; On empile this
+	LOAD (1) -1[ST]
+	; Param 0
+	; Valeur variable
+	LOAD (1) 3[LB]
+	; Vérification d'une NPE
+	LOAD (1) -1[ST]
+	JUMPIF (0) _NPE_
+	; On empile this
+	LOAD (1) -1[ST]
+	; Param 0
+	LOADL 3
+	; Appel de la méthode Fact::fact
+	LOADL 0 ; Pour le CALLI (cf doc de tam)
+	LOAD (1) -3[ST] ; On récupère la valeur du pointeur
+	LOADI (1) ; On récupère l'@ de la TDV
+	; On obtient l'adresse réelle de la méthode
+	LOADI (1) ; Que l'on va chercher et mettre en tête de pile
+	CALLI ; Et on appelle la méthode.. OUF
+	; Appel de la méthode res::setI
+	LOADL 0 ; Pour le CALLI (cf doc de tam)
+	LOAD (1) -3[ST] ; On récupère la valeur du pointeur
+	LOADI (1) ; On récupère l'@ de la TDV
+	; On obtient l'adresse réelle de la méthode
+	LOADI (1) ; Que l'on va chercher et mettre en tête de pile
+	CALLI ; Et on appelle la méthode.. OUF
+	RETURN (1) 1
+

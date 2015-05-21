@@ -1,0 +1,31 @@
+filou@Hal-Bender:~/Bureau/tdl/src$ ./mjcompiler ../ex_mj/error/error_tds.mj 
+version 0.0.1
+Compiling ../ex_mj/error/error_tds
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+d : Variable de type : null et de dep : 5
+y : Variable de type : entier(1) et de dep : 3
+Table des Symboles :
+EGG ../ex_mj/error/error_tds: 4: Semantic error: Classe non_existant_class non definie.
+EGG ../ex_mj/error/error_tds: 8: Semantic error: Attribut already_defined_attribute de la classe error_tds deja defini.
+EGG ../ex_mj/error/error_tds: 12: Semantic error: Un constructeur ne doit rien retourner (classe error_tds).
+EGG ../ex_mj/error/error_tds: 16: Semantic error: Un constructeur de la classe error_tds porte un nom different : constructor.
+EGG ../ex_mj/error/error_tds: 25: Semantic error: Parametre already_defined_param de la test2 deja defini.
+EGG ../ex_mj/error/error_tds: 29: Semantic error: Methode test2 deja definie dans la classe error_tds.
+EGG ../ex_mj/error/error_tds: 35: Semantic error: Parametre y de la error_tds deja defini.
+EGG ../ex_mj/error/error_tds: 36: Semantic error: Retour de la methode test3 absent.
+EGG ../ex_mj/error/error_tds: 41: Semantic error: La variable y dans la classe error_tds est deja definie.
+EGG ../ex_mj/error/error_tds: 44: Semantic error: Identificateur whatsdat non defini dans la classe error_tds.
+EGG ../ex_mj/error/error_tds: 47: Semantic error: Tentative dacces a un attribut dun objet basique (y) dans la classe error_tds.
+EGG ../ex_mj/error/error_tds: 49: Semantic error: Classe dede non definie.
+EGG ../ex_mj/error/error_tds: 52: Semantic error: Tentative dacces a un attribut dun objet basique (d) dans la classe error_tds.
+EGG ../ex_mj/error/error_tds: 58: Semantic error: Erreur de type sur retour de methode : entier au lieu de void dans la Methode void main ().
+EGG ../ex_mj/error/error_tds: 58: Semantic error: La main retourne un entier mais est de type void.
+EGG ../ex_mj/error/error_tds: 59: Semantic error: La main ne doit rien retourner.
+EGG ../ex_mj/error/error_tds: 72: Semantic error: Classe error_tds deja definie.
+Ok.
+

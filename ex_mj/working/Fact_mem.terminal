@@ -1,0 +1,37 @@
+filou@Hal-Bender:~/Bureau/tdl/src$ ./mjcompiler ../ex_mj/working/Fact_mem.mj 
+version 0.0.1
+Compiling ../ex_mj/working/Fact_mem
+Table des Symboles :
+Table des Symboles :
+Table des Symboles :
+f : Variable de type : pointeur(1) vers type = Fact et de dep : 3
+x : Variable de type : pointeur(1) vers type = res et de dep : 4
+
+Ecriture du code dans ../ex_mj/working/Fact_mem.tam
+
+Table des classes
+Classe res
+	Attributs :
+entier(1) i
+	Methodes :
+Methode void setI (
+entier(1) t) deplacement : 0
+	Deplacement : 1
+
+Classe Fact
+	Attributs :
+entier(1) res
+	Methodes :
+Methode entier fact (
+entier(1) n) deplacement : 0
+	Deplacement : 0
+
+Classe TestFact
+	Attributs :
+	Methodes :
+Methode void main () deplacement : 0
+	Deplacement : 2
+
+
+Table des Symboles :
+Ok.
